@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaLearn Academy | Interactive Learning Platform</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            },
+            accent: {
+              500: '#0ea5e9',
+              600: '#0284c7',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #a5b4fc;
+      border-radius: 4px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    /* Glassmorphism elements */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .dark .glass-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+    }
+    /* Dynamic code editor textarea styling */
+    .code-editor-input {
+      background: #0f172a;
+      color: #38bdf8;
+      caret-color: #f43f5e;
+      tab-size: 2;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col antialiased">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Sticky Header & Navigation -->
+  <header class="sticky top-0 z-40 w-full glass-card border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-2 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition-transform">
+          ⚡
+        </div>
+        <div>
+          <span class="text-xl font-extrabold bg-gradient-to-r from-brand-600 to-accent-500 bg-clip-text text-transparent">NovaLearn</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400 block font-semibold -mt-1 tracking-wider uppercase">Academy</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-1 lg:space-x-4">
+        <a href="#modules" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Modules</a>
+        <a href="#viewer" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Interactive Lesson</a>
+        <a href="#playground" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Code Sandbox</a>
+        <a href="#quiz" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Practice Quiz</a>
+        <a href="#progress" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">My Progress</a>
+      </nav>
+
+      <!-- Right Controls: Progress Pill + Theme Toggle -->
+      <div class="flex items-center gap-3">
+        <!-- Compact Progress Indicator Pill -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <svg class="w-4 h-4 text-brand-600 dark:text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span class="text-xs font-semibold text-slate-700 dark:text-slate-300" id="header-progress-text">0/6 Done</span>
+        </div>
+
+        <!-- Dark/Light Mode Toggle -->
+        <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-500 border border-slate-200 dark:border-slate-700 transition focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Toggle Dark Mode">
+          <svg id="sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg id="moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Menu Panel -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pt-2 pb-4 space-y-1">
+      <a href="#modules" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Modules</a>
+      <a href="#viewer" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Lesson Viewer</a>
+      <a href="#playground" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Code Sandbox</a>
+      <a href="#quiz" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Quiz Widget</a>
+      <a href="#progress" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Progress Dashboard</a>
+    </div>
+  </header>
+
+  <main class="flex-grow">
+    
+    <!-- Hero Banner Section -->
+    <section class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-gradient-to-b from-brand-50/50 via-slate-50 to-slate-50 dark:from-slate-900/50 dark:via-slate-900 dark:to-slate-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 mb-6 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
+          Interactive Web Development Mastery
+        </span>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
+          Learn Full-Stack Fundamentals with <span class="bg-gradient-to-r from-brand-600 via-indigo-500 to-accent-500 bg-clip-text text-transparent">Hands-On Code & Real-Time Feedback</span>
+        </h1>
+        <p class="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-normal">
+          Master HTML5, Modern CSS Layouts, JS DOM Manipulation, Web Storage, and Async APIs with interactive lesson modules, live sandbox execution, and persistent progress tracking.
+        </p>
+
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#modules" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-500 hover:to-brand-600 text-white font-semibold text-base shadow-lg shadow-brand-500/25 transition transform hover:-translate-y-0.5">
+            Explore Course Modules
+          </a>
+          <a href="#quiz" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-base border border-slate-200 dark:border-slate-700 shadow-sm transition">
+            Test Knowledge in Quiz
+          </a>
+        </div>
+
+        <!-- Quick Key Metrics Bar -->
+        <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-200 dark:border-slate-800">
+          <div class="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+            <div class="text-2xl font-bold text-brand-600 dark:text-brand-400">6 Modules</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Core Curriculum</div>
+          </div>
+          <div class="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+            <div class="text-2xl font-bold text-accent-500">Live Sandbox</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Interactive Runner</div>
+          </div>
+          <div class="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+            <div class="text-2xl font-bold text-emerald-500">Auto Quiz</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Instant Grading</div>
+          </div>
+          <div class="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50">
+            <div class="text-2xl font-bold text-indigo-500">100% Offline</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">LocalStorage Sync</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Global Progress Summary Bar -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+      <div class="glass-card rounded-2xl p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Overall Student Progress</span>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white" id="overall-status-text">0% Completed (0 of 6 Modules)</h3>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="quick-reset-btn" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition">
+              Reset Progress
+            </button>
+            <span id="achievement-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 flex items-center gap-1">
+              🏆 Beginner Student
+            </span>
+          </div>
+        </div>
+        <!-- Progress Bar Track -->
+        <div class="w-full bg-slate-200 dark:bg-slate-700 h-4 rounded-full overflow-hidden p-0.5">
+          <div id="hero-progress-bar" class="h-full bg-gradient-to-r from-brand-500 via-indigo-500 to-accent-500 rounded-full transition-all duration-500 ease-out w-0"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Course Modules Grid Section -->
+    <section id="modules" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Curriculum Modules</h2>
+          <p class="mt-2 text-slate-600 dark:text-slate-400">Select any module to load interactive notes, key takeaways, and code snippets.</p>
+        </div>
+        <!-- Search & Filter Bar -->
+        <div class="flex flex-wrap items-center gap-3">
+          <input type="text" id="search-input" placeholder="Search modules..." class="px-4 py-2 text-sm rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white w-full sm:w-48">
+          <select id="filter-select" class="px-4 py-2 text-sm rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white">
+            <option value="all">All Statuses</option>
+            <option value="completed">Completed</option>
+            <option value="incomplete">In Progress</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grid Cards Container -->
+      <div id="modules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- Dynamic Lesson Content Viewer Section -->
+    <section id="viewer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-20">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-lg border border-slate-200 dark:border-slate-800">
+        
+        <!-- Viewer Header -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span id="viewer-module-badge" class="px-2.5 py-1 rounded-md text-xs font-bold bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300">Module 1</span>
+              <span id="viewer-est-time" class="text-xs text-slate-500 dark:text-slate-400 font-medium">⏱️ 15 min read</span>
+            </div>
+            <h2 id="viewer-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Semantic HTML5 Foundations</h2>
+          </div>
+
+          <button id="toggle-complete-btn" class="self-start lg:self-center px-5 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-2 shadow-sm">
+            <!-- Dynamic button state JS -->
+          </button>
+        </div>
+
+        <!-- Content Sub-tabs -->
+        <div class="flex border-b border-slate-200 dark:border-slate-800 my-6 space-x-6">
+          <button id="tab-material-btn" class="pb-3 text-sm font-semibold border-b-2 border-brand-600 text-brand-600 dark:text-brand-400">Lesson Material</button>
+          <button id="tab-takeaways-btn" class="pb-3 text-sm font-medium border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">Key Takeaways</button>
+        </div>
+
+        <!-- Main Body Content Area -->
+        <div id="tab-material-content" class="prose dark:prose-invert max-w-none space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <!-- Populated by JS -->
+        </div>
+
+        <div id="tab-takeaways-content" class="hidden space-y-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Interactive Code Snippet Box inside Viewer -->
+        <div class="mt-8 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden shadow-md">
+          <div class="px-4 py-3 bg-slate-950 flex items-center justify-between border-b border-slate-800">
+            <span class="text-xs font-mono font-semibold text-slate-400 flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="ml-2" id="code-filename">example.html</span>
+            </span>
+            <div class="flex items-center gap-2">
+              <button id="copy-code-btn" class="px-3 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+                📋 Copy Code
+              </button>
+              <button id="load-in-sandbox-btn" class="px-3 py-1 rounded text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition flex items-center gap-1">
+                🚀 Load in Sandbox
+              </button>
+            </div>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm text-cyan-300 font-mono"><code id="code-display"></code></pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Interactive Live Code Sandbox Section -->
+    <section id="playground" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-20">
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <span>💻</span> Live Code Sandbox & Editor
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Edit the HTML/CSS code directly and see the live rendered output instant updates.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Editor Input -->
+        <div class="flex flex-col rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-lg">
+          <div class="px-4 py-3 bg-slate-950 flex items-center justify-between border-b border-slate-800">
+            <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono">Input Editor (HTML + Inline CSS)</span>
+            <button id="run-code-btn" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1">
+              ▶ Run Preview
+            </button>
+          </div>
+          <textarea id="sandbox-textarea" class="w-full h-80 p-4 font-mono text-sm code-editor-input focus:outline-none resize-none" spellcheck="false"></textarea>
+        </div>
+
+        <!-- Rendered Output Preview Frame -->
+        <div class="flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
+          <div class="px-4 py-3 bg-slate-100 dark:bg-slate-800 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider font-mono">Live Output Render</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          </div>
+          <iframe id="sandbox-iframe" class="w-full h-80 bg-white border-0" title="Live Preview Output"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Practice Quiz Widget Section -->
+    <section id="quiz" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-20">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-xl border border-slate-200 dark:border-slate-800 max-w-3xl mx-auto">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-accent-500/10 text-accent-500 flex items-center justify-center font-bold text-xl">
+              🎯
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white">Knowledge Practice Quiz</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400" id="quiz-subtitle">Testing concepts from active module</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-500 dark:text-slate-400 block font-medium">Score</span>
+            <span class="text-lg font-black text-brand-600 dark:text-brand-400" id="quiz-score-display">0 / 0</span>
+          </div>
+        </div>
+
+        <!-- Active Question Container -->
+        <div id="quiz-active-box">
+          <div class="flex justify-between items-center text-xs text-slate-500 mb-2 font-medium">
+            <span id="quiz-question-counter">Question 1 of 4</span>
+            <span id="quiz-topic-tag" class="text-brand-600 font-semibold">Semantic HTML</span>
+          </div>
+
+          <h4 id="quiz-question-text" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-6">
+            Loading question...
+          </h4>
+
+          <div id="quiz-options-container" class="space-y-3 mb-6">
+            <!-- Options injected dynamically -->
+          </div>
+
+          <!-- Explanation box -->
+          <div id="quiz-explanation-box" class="hidden p-4 rounded-xl text-sm font-medium border mb-6"></div>
+
+          <div class="flex justify-end">
+            <button id="quiz-next-btn" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-semibold text-sm transition shadow-md" disabled>
+              Next Question →
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Completion Screen -->
+        <div id="quiz-finished-box" class="hidden text-center py-8">
+          <div class="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-500 mx-auto flex items-center justify-center text-4xl mb-4">
+            🎓
+          </div>
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Module Quiz Completed!</h4>
+          <p class="text-slate-600 dark:text-slate-300 text-sm max-w-md mx-auto mb-6" id="quiz-summary-text">
+            Great job testing your knowledge. Keep practicing to master web development!
+          </p>
+          <button id="quiz-restart-btn" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition shadow-md">
+            Retake Practice Quiz
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Student Progress Dashboard & Checklist Section -->
+    <section id="progress" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-20">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-xl border border-slate-200 dark:border-slate-800">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Curriculum Progress Checklist</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Check off modules as you master the concepts. State is automatically saved locally.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="mark-all-done-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 transition">
+              ✓ Mark All Complete
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Checklist Items -->
+        <div id="checklist-container" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:flex sm:justify-between sm:items-center">
+      <div class="flex items-center justify-center sm:justify-start gap-2 mb-4 sm:mb-0">
+        <span class="text-lg">⚡</span>
+        <span class="font-bold text-slate-900 dark:text-white">NovaLearn Academy</span>
+        <span class="text-xs text-slate-500 dark:text-slate-400">© 2026 Interactive EdTech Platform</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Designed for modern, responsive, client-side web development instruction.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Application Logic JavaScript -->
+  <script>
+    /* ==========================================================================
+       1. DATA STRUCTURES & CURRICULUM CONTENT
+       ========================================================================== */
+    const MODULES = [
+      {
+        id: 1,
+        title: "Semantic HTML5 & Web Accessibility",
+        icon: "🏗️",
+        estTime: "15 min",
+        level: "Beginner",
+        shortDesc: "Learn structural semantic markup (<main>, <article>, <section>) and ARIA standards.",
+        material: `
+          <p>Semantic HTML forms the backbone of accessible and SEO-optimized web development. Unlike non-semantic tags like <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code>, semantic tags describe the actual <em>meaning</em> of the content contained inside them.</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-4 mb-2">Key Semantic Tags:</h3>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><code>&lt;header&gt;</code>: Defines introductory content or navigation headers.</li>
+            <li><code>&lt;main&gt;</code>: Contains the central unique content of the page document.</li>
+            <li><code>&lt;article&gt;</code>: Represents a self-contained composition (blog post, module card).</li>
+            <li><code>&lt;section&gt;</code>: Groups related content together under a common heading.</li>
+          </ul>
+        `,
+        takeaways: [
+          "Use semantic elements instead of generic div soup for better screen-reader accessibility.",
+          "Ensure every page has one primary <h1> tag and sequential subheadings.",
+          "Include descriptive alt tags for image media tags."
+        ],
+        codeFilename: "index.html",
+        defaultCode: `<!-- Semantic HTML Example -->
+<header style="background: #4f46e5; color: white; padding: 1rem; text-align: center; border-radius: 8px;">
+  <h1>Welcome to NovaLearn</h1>
+  <p>Semantic HTML5 structure in action!</p>
+</header>
+<main style="padding: 1rem;">
+  <article style="border: 1px solid #ccc; padding: 1rem; border-radius: 8px;">
+    <h2>Article Heading</h2>
+    <p>This content is semantically structured inside an article element.</p>
+  </article>
+</main>`,
+        quiz: [
+          {
+            q: "Which element represents the dominant, primary content of a document?",
+            options: ["<section>", "<main>", "<header>", "<article>"],
+            answer: 1,
+            exp: "<main> specifies the main content area of the document body."
+          },
+          {
+            q: "Why is semantic HTML critical for modern web applications?",
+            options: [
+              "It speeds up internet connection speeds automatically",
+              "It improves accessibility for screen readers and search engine crawling",
+              "It forces the browser to use dark mode CSS",
+              "It replaces JavaScript code entirely"
+            ],
+            answer: 1,
+            exp: "Semantic tags provide structural context to assistive technologies and search engine indexing bots."
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: "Modern CSS3 Layouts: Flexbox & Grid",
+        icon: "🎨",
+        estTime: "20 min",
+        level: "Beginner",
+        shortDesc: "Master 1D alignment with Flexbox and 2D grid structure using pure CSS3 rules.",
+        material: `
+          <p>CSS Grid and Flexbox have revolutionized front-end page layouts. Flexbox is optimized for 1D content flows (such as navigation bars and toolbars), while Grid excels at multi-dimensional card structures.</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-4 mb-2">CSS Grid vs Flexbox:</h3>
+          <p>Combine both to achieve completely responsive mobile-to-desktop viewports without hardcoded pixel widths.</p>
+        `,
+        takeaways: [
+          "Use flex-direction, align-items, and justify-content for smooth single-axis centering.",
+          "Use grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) for responsive grids.",
+          "Define CSS custom properties (:root) for consistent theme tokens."
+        ],
+        codeFilename: "layout.html",
+        defaultCode: `<!-- Flexbox & Grid Interactive Example -->
+<div style="display: flex; gap: 10px; font-family: sans-serif;">
+  <div style="flex: 1; background: #0ea5e9; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+    Flex Item 1
+  </div>
+  <div style="flex: 2; background: #6366f1; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+    Flex Item 2 (Double Width)
+  </div>
+</div>`,
+        quiz: [
+          {
+            q: "Which CSS display value is designed for 1-dimensional layout distribution?",
+            options: ["display: block", "display: flex", "display: grid", "display: inline"],
+            answer: 1,
+            exp: "Flexbox is ideal for 1D alignments along a single main axis."
+          },
+          {
+            q: "What CSS Grid property allows auto-wrapping cards dynamically without hardcoded media queries?",
+            options: ["repeat(auto-fit, minmax(...))", "grid-wrap: force", "flex-flow: row wrap", "float: left"],
+            answer: 0,
+            exp: "repeat(auto-fit, minmax(...)) dynamically fills available width responsibly."
+          }
+        ]
+      },
+      {
+        id: 3,
+        title: "JS DOM Manipulation & Events",
+        icon: "⚡",
+        estTime: "25 min",
+        level: "Intermediate",
+        shortDesc: "Attach event listeners, update element classes, and modify DOM nodes dynamically.",
+        material: `
+          <p>The Document Object Model (DOM) represents the page structure so that programs can change document content, layout, and styling dynamically with JavaScript.</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-4 mb-2">Modern Event Handling:</h3>
+          <p>Use <code>addEventListener('click', handler)</code> to listen for interactions cleanly without polluting HTML attributes.</p>
+        `,
+        takeaways: [
+          "Target elements with document.querySelector() or getElementById().",
+          "Use element.classList.add(), remove(), and toggle() for state changes.",
+          "Prevent default form submission using event.preventDefault()."
+        ],
+        codeFilename: "dom.html",
+        defaultCode: `<!-- Interactive DOM Counter -->
+<div style="text-align: center; padding: 20px; font-family: sans-serif;">
+  <h2 id="counter" style="font-size: 3rem; color: #4f46e5; margin: 0;">0</h2>
+  <button onclick="document.getElementById('counter').innerText = parseInt(document.getElementById('counter').innerText) + 1" 
+          style="background: #10b981; color: white; border: none; padding: 10px 20px; font-size: 1rem; border-radius: 6px; cursor: pointer;">
+    Increment Counter +1
+  </button>
+</div>`,
+        quiz: [
+          {
+            q: "Which method is recommended to attach an event handler to a DOM element?",
+            options: ["element.onclick = fn", "element.addEventListener()", "element.attach()", "document.bind()"],
+            answer: 1,
+            exp: "addEventListener allows multiple independent listeners without overwriting handlers."
+          }
+        ]
+      },
+      {
+        id: 4,
+        title: "Client Storage: LocalStorage & SessionStorage",
+        icon: "💾",
+        estTime: "15 min",
+        level: "Intermediate",
+        shortDesc: "Persist user configuration, themes, and application data in browser memory.",
+        material: `
+          <p>Web Storage API provides mechanisms by which browsers can store key/value pairs securely in the browser. <code>localStorage</code> persists even after browser restarts.</p>
+        `,
+        takeaways: [
+          "Use localStorage.setItem('key', JSON.stringify(data)) to store complex objects.",
+          "Use JSON.parse(localStorage.getItem('key')) to retrieve data.",
+          "Use localStorage.removeItem() or clear() to reset stored state."
+        ],
+        codeFilename: "storage.html",
+        defaultCode: `<!-- Storage Demo -->
+<div style="font-family: sans-serif; padding: 15px;">
+  <input id="user-name" placeholder="Enter your name..." style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+  <button onclick="localStorage.setItem('saved_name', document.getElementById('user-name').value); alert('Saved to LocalStorage!')" 
+          style="padding: 8px 12px; background: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    Save Local Data
+  </button>
+</div>`,
+        quiz: [
+          {
+            q: "How long does data saved inside localStorage persist?",
+            options: ["Until tab close", "24 hours", "Indefinitely until explicitly cleared", "1 hour"],
+            answer: 2,
+            exp: "localStorage has no expiration time limit unless cleared manually or programmatically."
+          }
+        ]
+      },
+      {
+        id: 5,
+        title: "Async JS & Web Fetch API",
+        icon: "🌐",
+        estTime: "30 min",
+        level: "Advanced",
+        shortDesc: "Fetch external REST APIs asynchronously using promises and async/await syntax.",
+        material: `
+          <p>Asynchronous JavaScript allows web applications to fetch resources over the network without blocking the main UI execution thread.</p>
+        `,
+        takeaways: [
+          "Use async / await for clean asynchronous code structure.",
+          "Always handle potential network errors with try { ... } catch (err) { ... }.",
+          "Parse incoming responses using response.json()."
+        ],
+        codeFilename: "fetch.html",
+        defaultCode: `<!-- Async API Call Demo -->
+<div style="font-family: sans-serif; padding: 15px;" id="output">
+  <button onclick="fetchFact()" style="padding: 10px 15px; background: #0ea5e9; color: white; border: none; border-radius: 6px; cursor: pointer;">
+    Fetch Web Fact
+  </button>
+  <p id="fact-text" style="margin-top: 15px; font-style: italic; color: #475569;">Click button to load live data...</p>
+</div>
+<script>
+  function fetchFact() {
+    document.getElementById('fact-text').innerText = 'NovaLearn Platform API initialized successfully!';
+  }
+<\/script>`,
+        quiz: [
+          {
+            q: "What keyword pauses execution inside an async function until a Promise settles?",
+            options: ["defer", "await", "pause", "hold"],
+            answer: 1,
+            exp: "The await keyword pauses async function execution until the Promise resolves."
+          }
+        ]
+      },
+      {
+        id: 6,
+        title: "Web Performance & UI Aesthetics",
+        icon: "🚀",
+        estTime: "20 min",
+        level: "Advanced",
+        shortDesc: "Optimize rendering speed, accessibility contrast ratios, and visual polish.",
+        material: `
+          <p>Creating modern web applications requires balancing rapid rendering performance with visual elegance, smooth transitions, and dark mode theme adaptations.</p>
+        `,
+        takeaways: [
+          "Minimize main thread execution blocking.",
+          "Leverage hardware accelerated CSS properties like transform and opacity.",
+          "Ensure sufficient color contrast ratios (WCAG AA standards)."
+        ],
+        codeFilename: "perf.html",
+        defaultCode: `<!-- Animated Glow Card Demo -->
+<div style="padding: 20px; font-family: sans-serif;">
+  <div style="background: linear-gradient(135deg, #4f46e5, #0ea5e9); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); text-align: center; font-weight: bold;">
+    ✨ Smooth CSS Hardware-Accelerated Animation
+  </div>
+</div>`,
+        quiz: [
+          {
+            q: "Which CSS properties are most performant for high FPS animations?",
+            options: ["width and height", "transform and opacity", "margin-left and padding", "top and left"],
+            answer: 1,
+            exp: "transform and opacity enable GPU acceleration without triggering costly layout reflows."
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       2. STATE MANAGEMENT & LOCALSTORAGE PERSISTENCE
+       ========================================================================== */
+    let state = {
+      completedModules: JSON.parse(localStorage.getItem('novalearn_completed')) || [],
+      activeModuleId: 1,
+      activeTab: 'material',
+      theme: localStorage.getItem('novalearn_theme') || 'light',
+      quizState: {
+        currentQuestionIndex: 0,
+        score: 0,
+        answered: false,
+        activeQuizQuestions: []
+      }
+    };
+
+    // Web Audio Synthesizer sound effects
+    function playAudioTone(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'success') {
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+          osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } else if (type === 'error') {
+          osc.frequency.setValueAtTime(220, ctx.currentTime); // A3
+          osc.frequency.setValueAtTime(164.81, ctx.currentTime + 0.1); // E3
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.35);
+        }
+      } catch(e) {
+        // Fallback silently if audio context restricted
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('novalearn_completed', JSON.stringify(state.completedModules));
+      localStorage.setItem('novalearn_theme', state.theme);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const bgColors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        info: 'bg-brand-600 text-white'
+      };
+
+      toast.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-semibold flex items-center gap-2 transform translate-y-4 opacity-0 transition duration-300 pointer-events-auto ${bgColors[type] || bgColors.info}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✓' : 'ℹ'}</span> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-4', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    /* ==========================================================================
+       3. THEME MANAGEMENT
+       ========================================================================== */
+    function applyTheme() {
+      const html = document.documentElement;
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+
+      if (state.theme === 'dark') {
+        html.classList.add('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        html.classList.remove('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      saveState();
+      applyTheme();
+      showToast(`Switched to ${state.theme} mode`, 'info');
+    });
+
+    /* ==========================================================================
+       4. CURRICULUM & MODULE RENDERING
+       ========================================================================== */
+    function renderModulesGrid() {
+      const grid = document.getElementById('modules-grid');
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const filterValue = document.getElementById('filter-select').value;
+
+      grid.innerHTML = '';
+
+      const filtered = MODULES.filter(mod => {
+        const matchesSearch = mod.title.toLowerCase().includes(searchTerm) || mod.shortDesc.toLowerCase().includes(searchTerm);
+        const isDone = state.completedModules.includes(mod.id);
+        
+        if (filterValue === 'completed') return matchesSearch && isDone;
+        if (filterValue === 'incomplete') return matchesSearch && !isDone;
+        return matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500">
+            <p class="text-lg font-medium">No matching modules found.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(mod => {
+        const isCompleted = state.completedModules.includes(mod.id);
+        const isActive = mod.id === state.activeModuleId;
+
+        const card = document.createElement('div');
+        card.className = `module-card glass-card rounded-2xl p-6 shadow-md border transition duration-300 flex flex-col justify-between cursor-pointer group ${
+          isActive ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-slate-200 dark:border-slate-800 hover:border-brand-400'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-3xl p-2 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:scale-110 transition-transform">${mod.icon}</span>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                isCompleted 
+                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+              }">
+                ${isCompleted ? '✓ Done' : mod.level}
+              </span>
+            </div>
+
+            <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Module ${mod.id}</span>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-1 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">${mod.title}</h3>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">${mod.shortDesc}</p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">⏱️ ${mod.estTime}</span>
+            <button class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 transition">
+              ${isActive ? 'Active Lesson' : 'Study Module'}
+            </button>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          setActiveModule(mod.id);
+          document.getElementById('viewer').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function setActiveModule(id) {
+      state.activeModuleId = id;
+      renderModulesGrid();
+      renderLessonViewer();
+      initQuizForActiveModule();
+    }
+
+    /* ==========================================================================
+       5. LESSON VIEWER & CODE SANDBOX INTEGRATION
+       ========================================================================== */
+    function renderLessonViewer() {
+      const mod = MODULES.find(m => m.id === state.activeModuleId) || MODULES[0];
+      const isCompleted = state.completedModules.includes(mod.id);
+
+      document.getElementById('viewer-module-badge').textContent = `Module ${mod.id}`;
+      document.getElementById('viewer-est-time').textContent = `⏱️ ${mod.estTime} read`;
+      document.getElementById('viewer-title').textContent = mod.title;
+
+      // Render Complete Button Toggle State
+      const toggleBtn = document.getElementById('toggle-complete-btn');
+      if (isCompleted) {
+        toggleBtn.className = 'px-5 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-2 shadow-sm bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-200';
+        toggleBtn.innerHTML = '<span>✓</span> <span>Completed</span>';
+      } else {
+        toggleBtn.className = 'px-5 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-2 shadow-sm bg-brand-600 text-white hover:bg-brand-500';
+        toggleBtn.innerHTML = '<span>Mark Module as Complete</span>';
+      }
+
+      // Material tab content
+      document.getElementById('tab-material-content').innerHTML = mod.material;
+
+      // Key Takeaways tab content
+      const takeawaysList = mod.takeaways.map(t => `
+        <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3">
+          <span class="text-brand-600 dark:text-brand-400 font-bold">✓</span>
+          <p class="text-sm text-slate-700 dark:text-slate-300">${t}</p>
+        </div>
+      `).join('');
+      document.getElementById('tab-takeaways-content').innerHTML = takeawaysList;
+
+      // Code Display
+      document.getElementById('code-filename').textContent = mod.codeFilename;
+      document.getElementById('code-display').textContent = mod.defaultCode;
+
+      // Load code into sandbox input automatically
+      document.getElementById('sandbox-textarea').value = mod.defaultCode;
+      updateSandboxPreview();
+    }
+
+    // Toggle module complete action
+    document.getElementById('toggle-complete-btn').addEventListener('click', () => {
+      const id = state.activeModuleId;
+      const index = state.completedModules.indexOf(id);
+
+      if (index > -1) {
+        state.completedModules.splice(index, 1);
+        showToast('Module marked incomplete', 'info');
+      } else {
+        state.completedModules.push(id);
+        playAudioTone('success');
+        showToast('Module completed successfully! 🎉', 'success');
+      }
+
+      saveState();
+      updateProgressTracker();
+      renderModulesGrid();
+      renderLessonViewer();
+    });
+
+    // Sub-tabs switching
+    const tabMaterialBtn = document.getElementById('tab-material-btn');
+    const tabTakeawaysBtn = document.getElementById('tab-takeaways-btn');
+    const tabMaterialContent = document.getElementById('tab-material-content');
+    const tabTakeawaysContent = document.getElementById('tab-takeaways-content');
+
+    tabMaterialBtn.addEventListener('click', () => {
+      tabMaterialBtn.className = 'pb-3 text-sm font-semibold border-b-2 border-brand-600 text-brand-600 dark:text-brand-400';
+      tabTakeawaysBtn.className = 'pb-3 text-sm font-medium border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200';
+      tabMaterialContent.classList.remove('hidden');
+      tabTakeawaysContent.classList.add('hidden');
+    });
+
+    tabTakeawaysBtn.addEventListener('click', () => {
+      tabTakeawaysBtn.className = 'pb-3 text-sm font-semibold border-b-2 border-brand-600 text-brand-600 dark:text-brand-400';
+      tabMaterialBtn.className = 'pb-3 text-sm font-medium border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200';
+      tabTakeawaysContent.classList.remove('hidden');
+      tabMaterialContent.classList.add('hidden');
+    });
+
+    // Copy Code Button
+    document.getElementById('copy-code-btn').addEventListener('click', () => {
+      const code = document.getElementById('code-display').textContent;
+      const el = document.createElement('textarea');
+      el.value = code;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast('Code snippet copied to clipboard!', 'success');
+    });
+
+    // Load code into sandbox button
+    document.getElementById('load-in-sandbox-btn').addEventListener('click', () => {
+      const code = document.getElementById('code-display').textContent;
+      document.getElementById('sandbox-textarea').value = code;
+      updateSandboxPreview();
+      document.getElementById('playground').scrollIntoView({ behavior: 'smooth' });
+      showToast('Code loaded into Live Sandbox!', 'info');
+    });
+
+    // Code Sandbox Live Preview Runner
+    function updateSandboxPreview() {
+      const code = document.getElementById('sandbox-textarea').value;
+      const iframe = document.getElementById('sandbox-iframe');
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(code);
+      doc.close();
+    }
+
+    document.getElementById('run-code-btn').addEventListener('click', () => {
+      updateSandboxPreview();
+      showToast('Sandbox preview refreshed', 'info');
+    });
+
+    /* ==========================================================================
+       6. INTERACTIVE PRACTICE QUIZ ENGINE
+       ========================================================================== */
+    function initQuizForActiveModule() {
+      const mod = MODULES.find(m => m.id === state.activeModuleId) || MODULES[0];
+      state.quizState.activeQuizQuestions = mod.quiz || [];
+      state.quizState.currentQuestionIndex = 0;
+      state.quizState.score = 0;
+      state.quizState.answered = false;
+
+      document.getElementById('quiz-subtitle').textContent = `Testing concepts from: ${mod.title}`;
+      document.getElementById('quiz-active-box').classList.remove('hidden');
+      document.getElementById('quiz-finished-box').classList.add('hidden');
+
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const qs = state.quizState.activeQuizQuestions;
+      const idx = state.quizState.currentQuestionIndex;
+
+      if (idx >= qs.length) {
+        showQuizFinished();
+        return;
+      }
+
+      const qObj = qs[idx];
+      state.quizState.answered = false;
+
+      document.getElementById('quiz-question-counter').textContent = `Question ${idx + 1} of ${qs.length}`;
+      document.getElementById('quiz-score-display').textContent = `${state.quizState.score} / ${qs.length}`;
+      document.getElementById('quiz-question-text').textContent = qObj.q;
+      document.getElementById('quiz-next-btn').disabled = true;
+      document.getElementById('quiz-explanation-box').classList.add('hidden');
+
+      const optionsBox = document.getElementById('quiz-options-container');
+      optionsBox.innerHTML = '';
+
+      qObj.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium text-sm transition hover:border-brand-500 hover:bg-slate-50 dark:hover:bg-slate-750 flex items-center justify-between group';
+        btn.innerHTML = `
+          <span>${optText}</span>
+          <span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 group-hover:border-brand-500 flex items-center justify-center text-xs font-bold"></span>
+        `;
+
+        btn.addEventListener('click', () => handleQuizAnswer(optIdx, qObj, btn));
+        optionsBox.appendChild(btn);
+      });
+    }
+
+    function handleQuizAnswer(selectedIdx, qObj, selectedBtn) {
+      if (state.quizState.answered) return;
+      state.quizState.answered = true;
+
+      const isCorrect = selectedIdx === qObj.answer;
+      const expBox = document.getElementById('quiz-explanation-box');
+      const allButtons = document.querySelectorAll('#quiz-options-container button');
+
+      allButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === qObj.answer) {
+          btn.className = 'w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 font-semibold text-sm flex items-center justify-between';
+        } else if (idx === selectedIdx && !isCorrect) {
+          btn.className = 'w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 font-medium text-sm flex items-center justify-between';
+        }
+      });
+
+      if (isCorrect) {
+        state.quizState.score++;
+        playAudioTone('success');
+        expBox.className = 'p-4 rounded-xl text-sm font-medium border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 mb-6';
+        expBox.innerHTML = `<strong>✓ Correct!</strong> ${qObj.exp}`;
+      } else {
+        playAudioTone('error');
+        expBox.className = 'p-4 rounded-xl text-sm font-medium border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 mb-6';
+        expBox.innerHTML = `<strong>✕ Incorrect.</strong> ${qObj.exp}`;
+      }
+
+      expBox.classList.remove('hidden');
+      document.getElementById('quiz-score-display').textContent = `${state.quizState.score} / ${state.quizState.activeQuizQuestions.length}`;
+      document.getElementById('quiz-next-btn').disabled = false;
+    }
+
+    document.getElementById('quiz-next-btn').addEventListener('click', () => {
+      state.quizState.currentQuestionIndex++;
+      renderQuizQuestion();
+    });
+
+    function showQuizFinished() {
+      document.getElementById('quiz-active-box').classList.add('hidden');
+      document.getElementById('quiz-finished-box').classList.remove('hidden');
+
+      const total = state.quizState.activeQuizQuestions.length;
+      const score = state.quizState.score;
+      const percentage = Math.round((score / total) * 100);
+
+      document.getElementById('quiz-summary-text').textContent = 
+        `You scored ${score} out of ${total} (${percentage}%). ${percentage >= 80 ? 'Excellent work mastering these concepts!' : 'Keep reviewing the module notes and try again!'}`;
+    }
+
+    document.getElementById('quiz-restart-btn').addEventListener('click', () => {
+      initQuizForActiveModule();
+    });
+
+    /* ==========================================================================
+       7. STUDENT PROGRESS & CHECKLIST TRACKER
+       ========================================================================== */
+    function updateProgressTracker() {
+      const total = MODULES.length;
+      const count = state.completedModules.length;
+      const percent = Math.round((count / total) * 100);
+
+      // Header summary text
+      document.getElementById('header-progress-text').textContent = `${count}/${total} Done`;
+
+      // Hero progress bar
+      const bar = document.getElementById('hero-progress-bar');
+      bar.style.width = `${percent}%`;
+
+      document.getElementById('overall-status-text').textContent = `${percent}% Completed (${count} of ${total} Modules)`;
+
+      // Achievement badge logic
+      const badge = document.getElementById('achievement-badge');
+      if (percent === 100) {
+        badge.textContent = '🏆 Full-Stack Web Master';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-400 flex items-center gap-1';
+      } else if (percent >= 50) {
+        badge.textContent = '⭐ Intermediate Developer';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-brand-100 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 border border-brand-400 flex items-center gap-1';
+      } else {
+        badge.textContent = '🌱 Beginner Student';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 flex items-center gap-1';
+      }
+
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklist-container');
+      container.innerHTML = '';
+
+      MODULES.forEach(mod => {
+        const isChecked = state.completedModules.includes(mod.id);
+
+        const item = document.createElement('div');
+        item.className = `p-4 rounded-xl border transition flex items-center justify-between cursor-pointer ${
+          isChecked 
+            ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800' 
+            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+        }`;
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} class="w-5 h-5 rounded accent-brand-600 cursor-pointer pointer-events-none">
+            <div>
+              <span class="text-sm font-bold text-slate-900 dark:text-white ${isChecked ? 'line-through text-slate-500 dark:text-slate-400' : ''}">
+                Module ${mod.id}: ${mod.title}
+              </span>
+              <p class="text-xs text-slate-500 dark:text-slate-400">${mod.shortDesc}</p>
+            </div>
+          </div>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${isChecked ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-500'}">
+            ${isChecked ? 'Completed' : 'Pending'}
+          </span>
+        `;
+
+        item.addEventListener('click', () => {
+          const idx = state.completedModules.indexOf(mod.id);
+          if (idx > -1) {
+            state.completedModules.splice(idx, 1);
+          } else {
+            state.completedModules.push(mod.id);
+            playAudioTone('success');
+          }
+          saveState();
+          updateProgressTracker();
+          renderModulesGrid();
+          renderLessonViewer();
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    // Reset progress action
+    document.getElementById('quick-reset-btn').addEventListener('click', () => {
+      if (state.completedModules.length === 0) {
+        showToast('Progress is already empty', 'info');
+        return;
+      }
+      state.completedModules = [];
+      saveState();
+      updateProgressTracker();
+      renderModulesGrid();
+      renderLessonViewer();
+      showToast('Student progress has been reset', 'info');
+    });
+
+    // Mark all complete
+    document.getElementById('mark-all-done-btn').addEventListener('click', () => {
+      state.completedModules = MODULES.map(m => m.id);
+      saveState();
+      playAudioTone('success');
+      updateProgressTracker();
+      renderModulesGrid();
+      renderLessonViewer();
+      showToast('All curriculum modules marked complete! 🏆', 'success');
+    });
+
+    /* ==========================================================================
+       8. INITIALIZATION & EVENT LISTENERS
+       ========================================================================== */
+    // Search & Filter listeners
+    document.getElementById('search-input').addEventListener('input', renderModulesGrid);
+    document.getElementById('filter-select').addEventListener('change', renderModulesGrid);
+
+    // Mobile nav toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Initial render on load
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+      renderModulesGrid();
+      renderLessonViewer();
+      initQuizForActiveModule();
+      updateProgressTracker();
+    });
+  </script>
+</body>
+</html>
